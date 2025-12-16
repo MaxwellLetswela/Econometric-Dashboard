@@ -426,11 +426,11 @@ elif analysis_mode == "Valuation Analysis":
     """)
     st.markdown('</div>', unsafe_allow_html=True)
 
-elif analysis_mode == "Risk Assessment":
-    st.header(" Comprehensive Risk Analysis")
+    elif analysis_mode == "Risk Assessment":
+    st.header("⚠️ Comprehensive Risk Analysis")
     
     # Risk scorecard
-    st.subheader(" Regulatory Risk Scorecard")
+    st.subheader("📋 Regulatory Risk Scorecard")
     
     fig = go.Figure(data=[
         go.Bar(
@@ -459,14 +459,18 @@ elif analysis_mode == "Risk Assessment":
             st.progress(risk['Score']/10)
     
     # Risk vs reward matrix
-    st.subheader(" Risk-Reward Matrix")
+    st.subheader("⚖️ Risk-Reward Matrix")
+    
+    # FIXED: Calculate sector_avg_growth correctly
+    # Get the sector average growth from the sector_avg dataframe
+    sector_avg_growth_value = sector_avg.loc[sector_avg['Metric'] == 'Growth Rate', 'Value'].values[0]
     
     # Create synthetic risk-reward data
     risk_reward_data = pd.DataFrame({
         'Company': valuation_data['Company'].tolist() + ['Sector Avg'],
-        'Return_Potential': valuation_data['Growth_Rate'].tolist() + [sector_avg_growth],
+        'Return_Potential': valuation_data['Growth_Rate'].tolist() + [sector_avg_growth_value],
         'Risk_Score': [6.5, 5.0, 4.0, 3.0, 8.0, 5.3],  # Synthetic risk scores
-        'Valuation': valuation_data['Last_Valuation_ZAR_M'].tolist() + [sector_avg[sector_avg['Metric'] == 'Valuation']['Value'].values[0]]
+        'Valuation': valuation_data['Last_Valuation_ZAR_M'].tolist() + [sector_avg.loc[sector_avg['Metric'] == 'Valuation', 'Value'].values[0]]
     })
     
     fig = px.scatter(
@@ -480,9 +484,11 @@ elif analysis_mode == "Risk Assessment":
         size_max=50
     )
     
-    # Add quadrants
-    fig.add_hline(y=risk_reward_data['Return_Potential'].mean(), line_dash="dash", line_color="gray")
-    fig.add_vline(x=risk_reward_data['Risk_Score'].mean(), line_dash="dash", line_color="gray")
+    # Add quadrant lines using calculated averages
+    fig.add_hline(y=risk_reward_data['Return_Potential'].mean(), 
+                 line_dash="dash", line_color="gray")
+    fig.add_vline(x=risk_reward_data['Risk_Score'].mean(), 
+                 line_dash="dash", line_color="gray")
     
     fig.update_layout(
         xaxis_title="Risk Score (Higher = Riskier)",
@@ -493,7 +499,7 @@ elif analysis_mode == "Risk Assessment":
     st.plotly_chart(fig, use_container_width=True)
     
     # Mitigation strategies
-    st.subheader(" Risk Mitigation Strategies")
+    st.subheader("🛡️ Risk Mitigation Strategies")
     
     mitigation_strategies = pd.DataFrame({
         'Risk': ['SARB Licensing', 'NCA Compliance', 'BEE Requirements', 'POPI Compliance'],
@@ -519,8 +525,7 @@ elif analysis_mode == "Risk Assessment":
             st.markdown(f"`{strategy['Timeline']}`")
         st.divider()
 
-elif analysis_mode == "Macro Correlations":
-    st.header(" Macroeconomic Correlations")
+
     
     # Correlation matrix
     st.subheader(" Correlation Matrix")
